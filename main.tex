@@ -1,0 +1,190 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{macros}
+
+\title{Densest low-rank subgraph}
+\author{Vasily and Evimaria}
+\date{May 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\subsection{Definitions and Notation}
+\begin{definition}
+Let $G = (V,E)$ be a graph. For $S\subset V$ we define $E(S)$ to be the set of edges induced by $S$. We will call $f(S) = \frac{|E(S)|}{|S|}$ the density of $S$.
+\end{definition}
+
+\begin{definition}
+Let $S\subset V\subset \R^m$ and $k\geq 1$ an integer. We define $A_S$ to be the matrix with columns given by $S$, and $e_k(S) = \norm{A_S - A_{S,k}}$ to be the error of $S$, where $A_{S,k}$ is the $k$-rank approximation of $A_S$, which can be computed using the SVD. If $E\subset \R^m$ is the set of (left) principal vectors of $A_k$, and $e_k(S) \leq M$ for some $M$, we say that $E$ $M-$spans $S$. Note that if $M=0$, then $E$ simply spans $S$.
+\end{definition}
+
+\subsection{Questions}
+For the questions below, $k \geq 1$ is an integer and $G = (V,E)$ is a graph with $V\subset \R^m$.
+\begin{question}[Main question]
+    Find a subset of vertices $S\subset V$ that maximizes $\lambda f(S) - e_k(S)$.
+\end{question}
+
+\begin{question}[Main question 2]
+    Given an integer $n\geq 1$, find a subset of vertices $S\subset V$ of size $n$ that maximizes $\lambda f(S) - e_k(S)$.
+\end{question}
+
+\begin{question}[Forgetting about density]
+    Find subset of vertices $S\subset V$ of size $n$ that minimizes $e_k(S)$.
+\end{question}
+
+\begin{question}[Binary question]\label{Q: binary question}
+    Given $M \geq 0$ and integers $k,n\geq 1$, does there exists  $S\subset V$ of size $n$ such that $e_k(S)\leq M$? Is this problem \textbf{NP}-hard? What if $k=1$? What if $M=0$?
+\end{question}
+
+\begin{proof}[Answer]
+Case $M=0$ is not \textbf{NP}-hard for any given $k$, by algorithm \ref{alg: enumerative with M = 0}, but the runnning time is exponential in $k$.
+\end{proof}
+
+\begin{question}[Equivalent question]
+\label{Q: geometric question}
+    Given integers $k,n\geq 1$, find $S\subset V$ of size $n$ and orthonormal set $E\subset \R^m$ of size $k$ such that the sum of squares of distances from elements of $S$ to $\vspan{E}$ is minimizes? This is equivalent to minimizing $e_k(S)$ because $e_k(S) = \sum_{v\in S}(\text{distance from v to $\vspan{E}$})^2$. Set $E$ is the analogue of the set of right singular vectors of $S$ (it is not exactly it because $E$ need not be orthonormal). Note that given such $E$, we can use Gram-Schmidt and normalization to orthonormalize it.
+\end{question}
+
+\begin{question}[Yet another equivalent question]\label{Q: geometric question 2}
+    Instead of minimizing sum of squares of distances, we can maximize sum of squares of lengths of projections. Mathematically, find $S\subset V$ of size $n$ and orthonormal $E\subset \R^m$ of size k that maximize $\sum_{s\in S} \norm{\proj_{\vspan{E}}s}^2 = \sum_{i\leq |E|}\sigma_i^2$. This is equivalent to finding $S,E$ that minimize $\sum_{s\in S} \norm{s-\proj_{\vspan{E}}s}^2$, since for any vector $s$, $\norm{s}^2 = \norm{\proj_{\vspan{E}}s}^2 + \norm{s-\proj_{\vspan{E}}s}^2$ by Pythagoras' theorem.
+    
+    The benefit of this approach is that $\sigma_i^2 = \norm{Ae_i}^2 = \sum_{s\in S} \norm{\proj_{e_i}s}^2=$ sum of squares of lengths of projections onto component $e_i$, where $\sigma_i$ is the $i$\textsuperscript{th} singular value of $A$.
+    
+    Thus, the error $e_k(S) = \sum_{s\in S}\norm{s}^2 - \sum_{i\leq |E|}\sigma_i^2$.
+\end{question}
+
+\begin{proof}[Answer to \ref{Q: geometric question}]
+Consider the following algorithm that returns $S$ if exists $S$ with $e_k(S) = 0$, and ``false" otherwise:
+\begin{algorithm}[H]
+      \caption{}\label{alg: enumerative with M = 0}
+    \begin{algorithmic}[1]
+    \Procedure{FindS}{V,n,k}
+    \For{each set $\set{e_1,...,e_k}\subset V$ of size $k$}:
+        \State $M = \Big(e_1,...,e_k\Big)$
+        \State $S = E$
+        \For{$v\in V\setminus \set{e_1,...,e_k}$}
+            \If{$Mx = v$ has a solution}\label{line: direct Alg, check span}
+                \State $S = S\cup \set{v}$
+            \EndIf
+        \EndFor
+        \If{$|S|\geq n$}
+            \State \textbf{return} $S$
+        \EndIf
+    \EndFor
+    \State \textbf{return} false
+    \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+Note that line \ref{line: direct Alg, check span} checks if $v\in \vspan{\set{e_1,...,e_k}}$, and takes time $\Theta(m^2k)$ or $\Theta(mk)$ if a (LUP or any other) factorization of $M$ is precomputed. The overall complexity of algorithm \ref{alg: enumerative with M = 0} is $O(\binom{N}{k}Nkm)$ (by precomputing a factorization of $M$ to make solving $Mx=v$ faster), where $N = |V|$. For small $k<<N$ and $m = O((k-1)!)$ the complexity is $O(N^{k+1})$.
+
+It is not immediately clear that the algorithm is correct. For a set $S\subset V$ $e_k(S)=0$ is equivalent to $S$ being spanned by $k$ vectors. If such $S$ does not exist, the algorithm will not find one. If such $S$ exists, there are $k$ vectors that span $S$. So $d := \dim \vspan{S} \leq k$. So there exist $d$ vectors in $S$ that span $S$. Thus the $k$ vectors can be chosen from $S$, and the algorithm will find them by checking all subsets of $V$ of size $k$.
+
+Now consider the following modification of algorithm \ref{alg: enumerative with M = 0}, which attempts to find $S$ that minimizes $e_k(S)$.
+
+\begin{algorithm}[H]
+      \caption{}\label{alg: enumerative with M > 0}
+    \begin{algorithmic}[1]
+    \Procedure{FindS}{V,n,k}
+    \For{each set $E = \set{e_1,...,e_k}\subset V$ of size $k$}:
+        \State $M = \Big(e_1,...,e_k\Big)$
+        \State $D = $ empty array
+        \For{$v\in V\setminus \set{e_1,...,e_k}$}
+            \State $x=$ solution to $M^TMx = M^Tv$ (so $x=\proj_{\vspan E}(v)$)
+            \State append $\norm{v-Mx}^2$ to $D$
+        \EndFor
+        \State $S_E = E\cup$ the $n-k$ smallest values of $D$
+        \State $e_E = $ sum of $n-k$ smallest values of $D$
+    \EndFor
+    \State \textbf{return} $S_E$ with smallest $e_E$.
+    \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+Algorithm \ref{alg: enumerative with M > 0} is a simple modification of algorithm \ref{alg: enumerative with M = 0}. On line 6, instead of solving the linear system $Mx = v$ exactly, we find the closest point $x$ in the span of $\set{e_1,...,e_k}$ (which is the projection of $v$ onto $\vspan{\set{e_1,...,e_k}}$), and record the square of distance from $x$ to $v$.
+
+Note that this algorithm is not exact, as opposed to algorithm \ref{alg: enumerative with M = 0}. This is because there might exist a set $\set{e_1,...,e_k}$ that $M-$spans (has error $\leq M$) a set $S$, with $\set{e_1,...,e_k}$ not being a subset of $V$. To be explicit, consider $V=\set{(-1,2),(1,2)}$, $n=2$, $k=1$, $M = 3$. Then there exists vector $e_1=(0,1)$, for which the error is 2, while if $e_k$ were to be picked from $V$, the error would be 3.2. But by answer \ref{A: relationsip between OPT and sample representative error}, this algorithm is a 4-approximation if $k=1$ and all vectors in $V$ are of unit length.
+
+Clearly, the runtime of algorithm \ref{alg: enumerative with M > 0} is the same as algorithm \ref{alg: enumerative with M = 0}, and is equal to $O(N^{k+1})$, where $N = |V|$.
+\end{proof}
+
+\begin{question}
+    Suppose the data $V$ is normalized in some way. When will the SVD of $V$ give good info about the problem?
+\end{question}
+
+\section{Ideas}
+\subsection{Our problem is in \textbf{P}}
+\cite{chawla2013k} notes that a set solving k-means-- for $k=1$ is selectable by a sphere. Similarly, a set solving out problem is selectable by a cylinder for $k=1$. For an arbitrary $k$, a set solving our problem is selectable by a the quadric that describes the points $r$ away from some subspace $E$.
+
+To be precise, let $e_1,\dots,e_k$ be an orthonormal basis for the subset $E$ that solves out problem. Then set $S$ that solves our problem consists of $n$ points closest to $E$. Then exists quadric $Q$ that selects $S$, i.e. exist coefficients $a_i, a_{i,j}$ for $1\leq i\leq j\leq m$ s.t. $A_{i,j} = a_{i,j}$ is a symmetric matrix, and $b_i = a_i$ is a column vector, and for all points in $S$, $x^TAx + x^Tb + a_0 \leq 0$ and for all points not in $S$, $x^TAx + x^Tb + a_0 > 0$.
+
+Let's compute this quadric. Let $r>0$ be the cut-off distance, i.e. $n$ closest points lie within $r$ of $E$, and all other points lie further than $r$ from $E$. Then a quadric selecting $S$ is given by $\norm{x - \proj_{E}(x)}_2^2 - r^2 = 0$. But $\norm{x - \proj_{E}(x)}_2^2 = \norm{x}_2^2 - \norm{\proj_{E}(x)}_2^2$. Note that $\norm{x}_2^2 = \sum_{i=1}^d x_i^2$ and 
+\begin{align*}
+    \norm{\proj_{E}(x)}_2^2 &= \sum_{\ell=1}^k \inp{x}{e_\ell}^2 = \sum_{\ell=1}^k \left(\sum_{i=1}^m x_i e_{\ell,i}\right)^2 = \sum_{\ell=1}^k \left( \sum_{i=1}^m x_i^2 e_{\ell,i}^2 + 2\sum_{1\leq i < j\leq m} x_ix_j e_{\ell,i}e_{\ell,j} \right)\\
+    &= \sum_{i=1}^m x_i^2 \left(\sum_{\ell=1}^k  e_{\ell,i}^2\right) + 2\sum_{1\leq i < j\leq m} x_ix_j \left(\sum_{\ell=1}^k  e_{\ell,i}e_{\ell,j} \right)
+\end{align*}
+So the coefficients for quadric $Q$ are
+\begin{align*}
+    a_0 &= -r^2,\ a_i = 0 \text{ for $1\leq i\leq m$}\\
+    a_{i,i} &= 1 - \left(\sum_{\ell=1}^k  e_{\ell,i}^2 \right) \text{ and } \\
+    a_{i,j} &= - \left(\sum_{\ell=1}^k  e_{\ell,i}e_{\ell,j} \right)\text{ for $i\neq j$}.
+\end{align*}
+Suppose that $V$ is in \textit{general quadric position}, i.e. no hyperplane in $\R^\nu$ contains more than $\nu$ points of $\widehat{\X}$, just like they assume in \cite{bernholt2004complexity}. Then we have an analogue of lemma 2.2. in \cite{bernholt2004complexity}. 
+\begin{lemma}
+Given $V\subset \R^m$ in general quadric position, and a quadric selecting $S\subset V$. Then there exists set $T \subset V$, $|T| = \nu := m(m+3)/2$ such that for the quadric $Q(T)$ the following holds. Let $A,b,a_0$ define $Q(T)$. Then
+\begin{align*}
+    & x^TAx + x^Tb + a_0 \leq 0,\ x\in S,\\
+    & x^TAx + x^Tb + a_0 \geq 0,\ x\in V\setminus S,\\
+    & x^TAx + x^Tb + a_0 = 0\ \text{for at most $\nu$ points $x\in V\setminus S$}.
+\end{align*}
+\end{lemma}
+The proof is the same as for lemma 2.2 in \cite{bernholt2004complexity}. Since a set $S$ that solves our problem is selectable by a quadric, the lemma applies, and the algorithm proposed in \cite{bernholt2004complexity} finds $S$ in time $O(N^{\nu+1})$ (the only modification is that instead of selecting a set that gives the smallest covariance determinant, we select a set that has the smallest error of rank-$k$ approximation).
+
+\subsection{Useful examples}
+Let $k = 1$, $M = 0$ and $\R^m = \R^3$. Further, let $V$ consist of two groups $V_1$ and $V_2$, where $|V_2| >> |V_1| = n$ (for example, $|V_2|=2^n$). The vectors in $V_1$ are all equal to $e_1 = (1,0,0)$. The vectors in $V_2$ are equal to $e_2=(0,1,0)$ with some small noise in the third component, such that no two vectors in $V_2$ are collinear. Thus, the first principal component of $V$ is (approximately) $e_2$, and $V_1$ is the set of outliers. But set $V_1$ is the only set that has zero-error low-rank approximation $e_k(V_1)$.
+
+Here is a related example. Let $P >> 1$ be large parameter and $\epsilon << 1$ a small parameter, and $|V_1| = |V_2| = n$, with $V_1$ as above, and $V_2$ consisting of two groups: $V_2^+$ and $V_2^-$. Vectors in $V_2^+$ are all equal to $P\cdot(0,1,\epsilon)$, and vectors in $V_2^-$ are all equal to $P\cdot(0,1,-\epsilon)$. The first principal component of $V = V_1\cup V_2$ is (approximately) $e_2$. But $e_1(V_2) \approx \sum_{i\leq n}P^2\epsilon^2 = n P^2\epsilon^2$. By letting $\epsilon = 1/\sqrt{P}$ and $P\to \infty$, we get arbitrarily large error $e_1(V_2)$, while $e_1(V_1) = 0$.
+
+\subsection{Analogue to sample representative}
+In K-means we were looking for a representative but saw that a sample representative is not too bad either. When we are looking for principal vectors, perhaps it would be easier to select them from the existing ones, by the analogy of a sample representative. Since principal components have to be orthogonal, we can do gram-Schmidt on them. 
+
+Here is one idea: given $\set{e_1,...,e_k} = E\not\subset S$, swap $e_i$ for the vector in $S$ that is the closest to $e_1$ (by cosine similarity).
+
+\subsection{Randomized}
+Given set $V \subset \R^m$, consider the following algorithm.
+Initialize $S = \set{v_1}$ for a random $v_1\in V$. For $i=2,...,k$: randomly sample $v_i$ from $V$, proportional to $\sum_{v\in S}\inp{v_i}{v}$, and let $S = S\cup \set{v_i}$. 
+
+\subsection{Replacing algorithm}
+Put k random (or arbitrary) vectors to be S. Then try and reduce the effective rank of S via the following iterative procedure: for each vector v in V and each vector w in S (so n(|V|-n) combinations), replace w by v, and compute the k-rank-approximation error (by doing SVD). If the error went down, replace. Repeat until for no pair (v,w), replacing w with v reduces the rank.
+
+\textbf{Problem:} this algorithm will get "stuck" in a local optimum.
+
+\subsection{Better replacing algorithm (similar to \cite{rousseeuw1999fast})}
+Initialize a bunch ($\alpha$) of subsets $S\subset V$. Each $S$ is initialized as follows: first, select $k$ vectors from $V$ u.i.r., and then find $n-k$ points in $V$ that are the closest to the span of the $k$ initial vectors. Now, for each set $S$, compute the set $E = \set{e_1,\dots, e_k}$ of the first $k$ singular vectors, and choose $n$ points from $V$ that are the closest to the span of $E$. Repeat until one of the $\alpha$ trajectories converges. Notice that eventual convergence is guaranteed because at each step the error $e_k(S)$ does not increase.
+
+\subsection{Divide and Conquer algorithm}
+Let $k$ be a power of 2 and $|V|$ be a power of 2, and suppose there exists an algorithm (may be approximate) that, given $V\subset \R^m$ will find subset $S\subset V$ of a given size that minimizes $e_1(S)$, i.e. rank-1 approximation. Then can randomly split $V$ into $V_1$ and $V_2$ of equal size, (recursively) find subsets $S_1,S_2$ of $V_1$ and $V_2$ that have low-rank approximation, and let $S = S_1\cup S_2$.
+
+\subsection{SVD as an optimization problem}
+SVD is a minimization problem: for $k=1$, given $n$ vectors $x_1,...,x_n\in \R^d$, find vector $e_1$ that minimizes the sum (distance from point $i$ to $e_1$)\textsuperscript{2}, which is equivalent to maximizing the sum (length of projection)\textsuperscript{2}.
+
+If the set of vectors $x_1,...,x_n$ changes slightly (e.g. one vector is swapped out), then $e_1$ will also not change much ($e_1$ is continuous as a function of $x_1,...,x_n$). Can do a few steps of gradient descent to find the right $e_1$.
+
+\section{References}
+\begin{enumerate}
+    \item \href{https://www.cis.upenn.edu/~cis515/cis515-11-sl4.pdf}{overview of matrix norms} 
+    \item \href{https://arxiv.org/pdf/2002.07782.pdf}{Evimaria's paper on approximating (submodular - linear) function} 
+    \item \href{https://users.ics.aalto.fi/gionis/greedy-dense.pdf}{Greedy for dense subgraphs}  
+    \item \href{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8548605}{incremental SVD (incSVD and EincSVD and AEincSVD)}
+    \item \href{https://arxiv.org/pdf/1601.07010.pdf}{incremental SVD (recover SVD from SVD's of blocks)}
+    \item \href{https://en.wikipedia.org/wiki/Principal_component_analysis#Iterative_computation}{Wikipedia has a surprisingly good article on PCA}
+    \item \href{https://www.semanticscholar.org/paper/The-intractability-of-computing-the-minimum-of-a-Vardy/2e0b89803e126a41e872f1d68eeb3e8eb71698c5}{hardness results}
+    \item \href{https://www.cs.cmu.edu/~venkatg/teaching/CStheory-infoage/book-chapter-4.pdf}{amazing SVD overview with geometric intuition}
+    \item \href{https://www.cs.purdue.edu/homes/pdrineas/documents/publications/Drineas_SIMAX_08b.pdf}{Petros Drineas' paper on CUR relative error.} Section 4 concerns the approximation error guarantees. Their algorithm is probabilistic but perhaps we can use the mere existence of a good CUR decomposition to our advantage.
+    \item \href{https://www.theoryofcomputing.org/articles/v002a012/v002a012.pdf}{Existence of rows with good approximation guarantee.} Theorem 1.4 gives the existence.
+\end{enumerate}
+
+\printbibliography
+
+\end{document}
