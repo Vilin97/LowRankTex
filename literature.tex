@@ -29,8 +29,6 @@ $$\norm{A - \tilde{A}_k}^2 \leq (1+\epsilon)\norm{A - A_k}^2 = (1+\epsilon)\opt$
 Let $\X\subset \R^d$ be a set of $N$ points. Given natural number $h$, the \textit{minimum covariance determinant problem} is to find an $h$-element subset $\X'\subset \X$ such that $\det{\X'}$ is minimal, where $\det{S}$ is the determinant of the matrix $SS^T$, where $S$ is both a set and a matrix, with columns from $S$. $(SS^T)_{d\times d}$ is the covariance matrix of $S$.
 \end{definition}
 
-The MCD problem is related to our problem in the following algebraic way. For a given set $S$ and the matrix it spans (call it $S$ too), its SVD is given by $S = U \Sigma V^T$, where $SS^T = U \Sigma^2 U^T$ is the covariance matrix. Thus, the objective function in MCD is $$\det{S} = \det{SS^T} = \det{U \Sigma^2 U^T} = \det{\Sigma^2} = \prod_{i}\sigma_i^2 = \text{ product of singular values squared}.$$ The objective function in our problem is $$e_k(S) = \sum_{s\in S}\norm{s}^2 - \sum_{i\leq k}\sigma_i^2.$$
-
 \begin{definition}[Quadric]
 A \textit{quadric} $Q$ in $\R^d$ is the set describable by a second-degree polynomial
 \begin{equation}
