@@ -20,6 +20,19 @@ Let $G = (V,E)$ be a graph. For $S\subset V$ we define $E(S)$ to be the set of e
 Let $S\subset V\subset \R^m$ and $k\geq 1$ an integer. We define $A_S$ to be the matrix with columns given by $S$, and $e_k(S) = \norm{A_S - A_{S,k}}$ to be the error of $S$, where $A_{S,k}$ is the $k$-rank approximation of $A_S$, which can be computed using the SVD. If $E\subset \R^m$ is the set of (left) principal vectors of $A_k$, and $e_k(S) \leq M$ for some $M$, we say that $E$ $M-$spans $S$. Note that if $M=0$, then $E$ simply spans $S$.
 \end{definition}
 
+\subsection{Useful facts about SVD}
+Let $A$ be a $n\times m$ matrix of rank $r$ with rows being points in $\R^m$. The SVD of $A$ is
+$$\sum_{i\leq r}\sigma_i u_i v_i^T = U \Sigma V^T.$$
+Vectors $v_i$ are the (right) singular vectors of $A$ with the property
+$$v_i = \arg \max_{\norm{v_i}=1, v_i \perp v_1\dots v_{i-1}}\norm{A v_i},$$
+where $\norm{A v_i} = \sigma_i$ is sum of squares of lengths of projections of points onto $v_i$.
+
+The relationship between the Frobenius norm and the singular values is
+$$\norm{A}^2 = \sum_{i,j}a_{i,j}^2 = \sum \sigma_i^2.$$
+Given $A_k = \sum_{i\leq k}\sigma_i u_i v_i^T$, the best $k$-rank approximation of $A$ in both the 2-norm and the Frobenius norm, 
+$$\norm{A - A_k} = \norm{\sum_{i}\sigma_i u_i v_i^T - \sum_{i\leq k}\sigma_i u_i v_i^T} = \norm{\sum_{i > k}\sigma_i u_i v_i^T} = \sum_{i>k}\sigma_i^2.$$
+Thus, $$e_k(S) = \sum_{i>k}\sigma_i^2 = \text{ sum of squared lengths of projections onto the first $k$ singular vectors},$$ where $\sigma_i$ are the singular values of $S$ viewed as a matrix. This gives an algebraic and a geometric way to interpret the error.
+
 \subsection{Questions}
 For the questions below, $k \geq 1$ is an integer and $G = (V,E)$ is a graph with $V\subset \R^m$.
 \begin{question}[Main question]
@@ -30,28 +43,13 @@ For the questions below, $k \geq 1$ is an integer and $G = (V,E)$ is a graph wit
     Given an integer $n\geq 1$, find a subset of vertices $S\subset V$ of size $n$ that maximizes $\lambda f(S) - e_k(S)$.
 \end{question}
 
-\begin{question}[Forgetting about density]
+\begin{question}[Forgetting about density]\label{problem: no density}
     Find subset of vertices $S\subset V$ of size $n$ that minimizes $e_k(S)$. The binary version of the problem is: ``\textit{Given $M \geq 0$ and integers $k,n\geq 1$, does there exists  $S\subset V$ of size $n$ such that $e_k(S)\leq M$?}" Is this problem \textbf{NP}-hard?
 \end{question}
 
 \begin{proof}[Answer]
 Case $M=0$ is not \textbf{NP}-hard for any given $k$, by algorithm \ref{alg: enumerative with M = 0}, but the runnning time is exponential in $k$. Also, if the dimension $m$ is fixed, the problem is no \textbf{NP}-hard by \ref{subsection: our problem is in P}.
 \end{proof}
-
-\begin{question}[Equivalent question]
-\label{Q: geometric question}
-    Given integers $k,n\geq 1$, find $S\subset V$ of size $n$ and orthonormal set $E\subset \R^m$ of size $k$ such that the sum of squares of distances from elements of $S$ to $\vspan{E}$ is minimized. This is equivalent to minimizing $e_k(S)$ because $e_k(S) = \sum_{v\in S}(\text{distance from v to $\vspan{E}$})^2$. Set $E$ is the set of right singular vectors of $S$.
-\end{question}
-
-\begin{question}[Yet another equivalent question]\label{Q: geometric question 2}
-    Instead of minimizing sum of squares of distances, we can maximize sum of squares of lengths of projections. Mathematically, find $S\subset V$ of size $n$ and orthonormal $E\subset \R^m$ of size k that maximize $\sum_{s\in S} \norm{\proj_{\vspan{E}}s}^2 = \sum_{i\leq |E|}\sigma_i^2$. This is equivalent to finding $S,E$ that minimize $\sum_{s\in S} \norm{s-\proj_{\vspan{E}}s}^2$, since for any vector $s$, $\norm{s}^2 = \norm{\proj_{\vspan{E}}s}^2 + \norm{s-\proj_{\vspan{E}}s}^2$ by Pythagoras' theorem.
-    
-    The benefit of this approach is that $\sigma_i^2 = \norm{Ae_i}^2 = \sum_{s\in S} \norm{\proj_{e_i}s}^2=$ sum of squares of lengths of projections onto component $e_i$, where $\sigma_i$ is the $i$\textsuperscript{th} singular value of $A$.
-    
-    Thus, the error $e_k(S) = \sum_{s\in S}\norm{s}^2 - \sum_{i\leq |E|}\sigma_i^2$.
-\end{question}
-
-
 
 \begin{question}
     Suppose the data $V$ is normalized in some way. When will the SVD of $V$ give good info about the problem?
@@ -102,7 +100,7 @@ If the set of vectors $x_1,...,x_n$ changes slightly (e.g. one vector is swapped
 
 \section{Appendix}
 \subsection{naive algorithms}
-\begin{proof}[Answer to \ref{Q: geometric question}]
+\begin{proof}[Answer to \ref{problem: no density}]
 Consider the following algorithm that returns $S$ if exists $S$ with $e_k(S) = 0$, and ``false" otherwise:
 \begin{algorithm}[H]
       \caption{}\label{alg: enumerative with M = 0}
@@ -151,7 +149,7 @@ Now consider the following modification of algorithm \ref{alg: enumerative with 
 \end{algorithm}
 Algorithm \ref{alg: enumerative with M > 0} is a simple modification of algorithm \ref{alg: enumerative with M = 0}. On line 6, instead of solving the linear system $Mx = v$ exactly, we find the closest point $x$ in the span of $\set{e_1,...,e_k}$ (which is the projection of $v$ onto $\vspan{\set{e_1,...,e_k}}$), and record the square of distance from $x$ to $v$.
 
-Note that this algorithm is not exact, as opposed to algorithm \ref{alg: enumerative with M = 0}. This is because there might exist a set $\set{e_1,...,e_k}$ that $M-$spans (has error $\leq M$) a set $S$, with $\set{e_1,...,e_k}$ not being a subset of $V$. To be explicit, consider $V=\set{(-1,2),(1,2)}$, $n=2$, $k=1$, $M = 3$. Then there exists vector $e_1=(0,1)$, for which the error is 2, while if $e_k$ were to be picked from $V$, the error would be 3.2. But by answer \ref{A: relationsip between OPT and sample representative error}, this algorithm is a 4-approximation if $k=1$ and all vectors in $V$ are of unit length.
+Note that this algorithm is not exact, as opposed to algorithm \ref{alg: enumerative with M = 0}. This is because there might exist a set $\set{e_1,...,e_k}$ that $M-$spans (has error $\leq M$) a set $S$, with $\set{e_1,...,e_k}$ not being a subset of $V$. To be explicit, consider $V=\set{(-1,2),(1,2)}$, $n=2$, $k=1$, $M = 3$. Then there exists vector $e_1=(0,1)$, for which the error is 2, while if $e_k$ were to be picked from $V$, the error would be 3.2. By \cite{rademacher2005matrix} this algorithm is a 4-approximation if $k=1$ and all vectors in $V$ are of unit length.
 
 Clearly, the runtime of algorithm \ref{alg: enumerative with M > 0} is the same as algorithm \ref{alg: enumerative with M = 0}, and is equal to $O(N^{k+1})$, where $N = |V|$.
 \end{proof}
