@@ -50,9 +50,11 @@ where $d_w = \max\{d(v,e),d(e,w)\}$, and $d_w = d(w,e)$, by our choice of $v$.
 \end{question}
 
 \begin{proof}[Answer]\label{Q: pairwise inner products and rank-1 approximation}
-I think maximizing squares of pairwise dot products is equivalent to minimizing $e_1(S)$. The first objective is to maximize $\sum_{v,w\in S}\inp{v}{w}^2$ and the second objective is to maximize $\sum_{v\in S}\inp{v}{e}^2$ for $e$ minimizing $\norm{Ae}$. They certainly look similar.
+Neither is equivalent to minimizing $e_1(S)$.
 
-The answer to the first question is definitely no. Figure \ref{fig: not equivalent} shows an explicit example. But I could not find a counter example to the second question.
+The answer to the first question is definitely no. Figure \ref{fig: not equivalent} shows an explicit example. 
+
+An explicit example for the second question is: $S_1 = \set{(1,\epsilon),(1,-\epsilon)}$, $S_2 = \set{(2\epsilon, 1)\alpha,(-2\epsilon, 1)\alpha}$, and $V = S_1\cup S_2$, with $\epsilon = 0.1, \alpha = 1.01.$ Then $S_1$ maximizes sum of squares of pairwise dot products
 \begin{figure}
  \flushright
  \caption{\label{fig: not equivalent}}
