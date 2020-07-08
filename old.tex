@@ -19,7 +19,7 @@ Let $S\subset V$, and let $e$ be the principal vector (minimizing sum of square 
 \begin{lemma}\label{lemma: triangle inequality for projection distance}
 For any three unit-length vectors $e,v,w$, we have $d(v,w)^2\leq 2(d(v,e)^2+d(e,w)^2)$, similar to the triangle inequality.
 \end{lemma}
-Once we prove the lemma we will see that 
+Once we prove the lemma we will see that
 \begin{equation}\label{eqn: main equation for proof in case k = 1}
     \sum_{w\in S}d(w,v)^2\leq 2\sum_{w\in S}d(w,v)^2+2\sum_{w\in S}d(v,e)^2\leq 4\sum_{w\in S}d(w,v)^2 = 4\text{OPT}
 \end{equation}
@@ -29,7 +29,7 @@ We shall now prove the lemma. First, observe that for any two vectors $v,w$ we h
 
 \begin{proof}[Answer from \cite{deshpande2006matrix}]
 Theorem $1.4$ of \cite{deshpande2006matrix} states that for any matrix $A$ and $\epsilon>0$, there exist $k+k(k +1)/\epsilon$ rows whose span contains the rows of
-a rank-k matrix $\tilde{A}_k$ such that 
+a rank-k matrix $\tilde{A}_k$ such that
 $$\norm{A - \tilde{A}_k}^2 \leq (1+\epsilon)\norm{A - A_k}^2 = (1+\epsilon)\opt$$
 \end{proof}
 
@@ -38,7 +38,7 @@ The proof above can be simplified as follows. We will use lemma
 \begin{lemma}
 For any three unit-length vectors $e,v,w$, we have $d(v,w)^2\leq 4d^2$, where $d = \max\{d(v,e),d(e,w)\}$,
 \end{lemma}
-which can be proven by squaring the triangle inequality $d(v,w)\leq d(v,e)+d(e,w)$. The triangle inequality holds because distance $d$ is the Hausdorff distance on the Grassmanian manifold $\textbf{Gr(m,1)}$, the $1$-dimensional Grassmanian on $\R^m$. Inequality \ref{eqn: main equation for proof in case k = 1} then becomes 
+which can be proven by squaring the triangle inequality $d(v,w)\leq d(v,e)+d(e,w)$. The triangle inequality holds because distance $d$ is the Hausdorff distance on the Grassmanian manifold $\textbf{Gr(m,1)}$, the $1$-dimensional Grassmanian on $\R^m$. Inequality \ref{eqn: main equation for proof in case k = 1} then becomes
 \begin{equation}
     \sum_{w\in S}d(w,v)^2\leq 4\sum_{w\in S}d_w = 4\sum_{w\in S}d(w,e)^2 = 4\text{OPT},
 \end{equation}
@@ -52,9 +52,9 @@ where $d_w = \max\{d(v,e),d(e,w)\}$, and $d_w = d(w,e)$, by our choice of $v$.
 \begin{proof}[Answer]\label{Q: pairwise inner products and rank-1 approximation}
 Neither is equivalent to minimizing $e_1(S)$.
 
-The answer to the first question is definitely no. Figure \ref{fig: not equivalent} shows an explicit example. 
+The answer to the first question is definitely no. Figure \ref{fig: not equivalent} shows an explicit example.
 
-An explicit example for the second question is: $S_1 = \set{(1,\epsilon),(1,-\epsilon)}$, $S_2 = \set{(2\epsilon, 1)\alpha,(-2\epsilon, 1)\alpha}$, and $V = S_1\cup S_2$, with $\epsilon = 0.1, \alpha = 1.01.$ Then $S_1$ maximizes sum of squares of pairwise dot products
+An explicit example for the second question is: $S_1 = \set{(1,\epsilon),(1,-\epsilon)}$, $S_2 = \set{(2\epsilon, 1)\alpha,(-2\epsilon, 1)\alpha}$, and $V = S_1\cup S_2$, with $\epsilon = 0.1, \alpha = 1.01.$ Then $S_1$ maximizes sum of squares of pairwise dot products and $S_2$ maximizes $e_1(S).$
 \begin{figure}
  \flushright
  \caption{\label{fig: not equivalent}}
@@ -64,7 +64,7 @@ An explicit example for the second question is: $S_1 = \set{(1,\epsilon),(1,-\ep
 
 \begin{question}
 We want to find $S\subset V$ of size $n$ and $E\subset \R^m$ to maximize $$\sum_{w\in S}\norm{\proj_{\vspan{E}}(w)}^2.$$
-    
+
 If $E$ is given, can find $S$ easily (iterating through all $v\in V$ and choosing $n-k$ of them with biggest length of projection onto $\proj_{\vspan{E}}$). If $S$ is given, can approximately find $E$ (SVD). What about both at the same time? Some kind of analogue of $EM$, perhaps?
 \end{question}
 
@@ -103,10 +103,10 @@ The answer to the second question is ``no"! For the case when A is not mean-cent
 \end{question}
 
 \section{Research Summary}
-Evimaria Terzi and I, Vasily Ilin, are interested in detecting dense low-rank subgraphs. 
-The setup is as follows: we are given a graph G = (V,E), where V is a subset of m-dimensional Eucludean space $\R^m$. Given a subset S of V, one can ask for the "effective rank" of the matrix A spanned by S (matrix rows are given by S). The notion of effective rank is formalized by requiring A to be close to its best k-rank approximation $A_k$ in the Frobenius norm. If the effective rank k is small (less than size of S), vectors in S are almost spanned by k vectors. The problem we are interested in is developing algorithms to detect a dense (in average degree) subgraph S of G that has small effective rank. 
+Evimaria Terzi and I, Vasily Ilin, are interested in detecting dense low-rank subgraphs.
+The setup is as follows: we are given a graph G = (V,E), where V is a subset of m-dimensional Eucludean space $\R^m$. Given a subset S of V, one can ask for the "effective rank" of the matrix A spanned by S (matrix rows are given by S). The notion of effective rank is formalized by requiring A to be close to its best k-rank approximation $A_k$ in the Frobenius norm. If the effective rank k is small (less than size of S), vectors in S are almost spanned by k vectors. The problem we are interested in is developing algorithms to detect a dense (in average degree) subgraph S of G that has small effective rank.
 
-One possible application of this is in social (and other) networks. Consider a network of researchers, where each researcher is associated to a vector of topics of their research interests. And an edge between two researchers exists if the two researchers have collaborated. Then we might be interested in finding "communities" of researchers who collaborate with each other, and whose topic interests align well, where "align well" is quantified as having low effective rank. 
+One possible application of this is in social (and other) networks. Consider a network of researchers, where each researcher is associated to a vector of topics of their research interests. And an edge between two researchers exists if the two researchers have collaborated. Then we might be interested in finding "communities" of researchers who collaborate with each other, and whose topic interests align well, where "align well" is quantified as having low effective rank.
 
 This problem is a generalization of some existing problems with known good algorithms. For example, the problem of finding the densest (by average degree) subgraph has been shown to have a simple greedy algorithm that gives a 2-approximation (along with an exact algorithm using max-flow). We hope to build on this existing work to come up with algorithms for our problem and its variants.
 
