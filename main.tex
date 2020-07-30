@@ -3,7 +3,7 @@
 \usepackage{macros}
 
 \title{Densest low-rank subgraph}
-\author{Vasily and Evimaria}
+\author{Vasily}
 \date{May 2020}
 
 \begin{document}
@@ -13,35 +13,45 @@
 \section{Introduction}
 \subsection{Definitions and Notation}
 \begin{definition}
-Let $G = (V,E)$ be a graph. For $S\subset V$ we define $E(S)$ to be the set of edges induced by $S$. We will call $f(S) = \frac{|E(S)|}{|S|}$ the density of $S$.
+Let $G = (V,E)$ be a graph. For $S\subset V$ we define $E(S)$ to be the set of edges induced by $S$. We will call $\rho(S) = \frac{|E(S)|}{|S|}$ the density of $S$.
 \end{definition}
 
 \begin{definition}
-Let $S\subset V\subset \R^m$ and $k\geq 1$ an integer. We define $A_S$ to be the matrix with columns given by $S$, and $e_k(S) = \norm{A_S - A_{S,k}}$ to be the error of $S$, where $A_{S,k}$ is the $k$-rank approximation of $A_S$, which can be computed using the SVD. If $E\subset \R^m$ is the set of (left) principal vectors of $A_k$, and $e_k(S) \leq M$ for some $M$, we say that $E$ $M-$spans $S$. Note that if $M=0$, then $E$ simply spans $S$.
+Let $S\subset V\subset \R^d$ and $k\geq 1$ an integer, and $X$ be a matrix, whose columns are given by $V$. We define $A_S$ to be the matrix with columns given by $S$, and
+\begin{equation}\label{eqn: L2 objective, not normalized}
+    e_k(S) = \norm{A_S - A_{S,k}}^2 = \sum_{i=k+1}^{\rank A_S} \sigma_i^2
+\end{equation}
+to be the error of $S$, where $A_{S,k}$ is the best $k$-rank approximation of $A_S$, and $\sigma_i$ is the
+$i$\textsuperscript{th} largest principal value. If $E\subset \R^d$ is the set of (left) principal vectors of $A_k$, and $e_k(S) \leq M$ for some $M$, we say that $E$ $M$-spans $S$. Note that if $M=0$, then $E$ simply spans $S$.
+
+Additionally, let
+\begin{equation}\label{eqn: L2 objective, normalized}
+    e'_k(S) = \norm{A_S - A_{S,k}}^2/\norm{A_S}^2 = \frac{\sum_{i\geq k+1} \sigma_i^2}{\sum_{i\geq 1} \sigma_i^2}
+\end{equation}
 \end{definition}
+Letting $\set{v_1,\dots,v_N} = V$ we have $A_S = X D$, where $D$ is a diagonal matrix with $D_{i,i} = 1$ whenever $v_i \in S$.
 
 \subsection{Useful facts about SVD}
-Let $A$ be a $n\times m$ matrix of rank $r$ with rows being points in $\R^m$. The SVD of $A$ is
+Let $A$ be a $d\times n$ matrix of rank $r$ with columns being points in $\R^d$. The SVD of $A$ is
 $$\sum_{i\leq r}\sigma_i u_i v_i^T = U \Sigma V^T.$$
-Vectors $v_i$ are the (right) singular vectors of $A$ with the property
-$$v_i = \arg \max_{\norm{v_i}=1, v_i \perp v_1\dots v_{i-1}}\norm{A v_i},$$
-where $\norm{A v_i} = \sigma_i$ is sum of squares of lengths of projections of points onto $v_i$.
+Vectors $u_i$ are the (left) singular vectors of $A$ with the property
+$$u_i = \arg \max_{\norm{u_i}=1, u_i \perp u_1\dots u_{i-1}}\norm{A u_i},$$
+where $\norm{A u_i} = \sigma_i$ is sum of squares of lengths of projections of points onto $u_i$.
 
 The relationship between the Frobenius norm and the singular values is
 $$\norm{A}^2 = \sum_{i,j}a_{i,j}^2 = \sum \sigma_i^2.$$
-Given $A_k = \sum_{i\leq k}\sigma_i u_i v_i^T$, the best $k$-rank approximation of $A$ in both the 2-norm and the Frobenius norm, 
-$$\norm{A - A_k} = \norm{\sum_{i}\sigma_i u_i v_i^T - \sum_{i\leq k}\sigma_i u_i v_i^T} = \norm{\sum_{i > k}\sigma_i u_i v_i^T} = \sum_{i>k}\sigma_i^2.$$
+Given $A_k = \sum_{i\leq k}\sigma_i u_i v_i^T$, the best $k$-rank approximation of $A$ in both the 2-norm and the Frobenius norm,
+$$\norm{A - A_k}^2 = \norm{\sum_{i}\sigma_i u_i v_i^T - \sum_{i\leq k}\sigma_i u_i v_i^T}^2 = \norm{\sum_{i > k}\sigma_i u_i v_i^T}^2 = \sum_{i>k}\sigma_i^2.$$
 Thus, $$e_k(S) = \sum_{i>k}\sigma_i^2 = \text{ sum of squared lengths of projections onto the first $k$ singular vectors},$$ where $\sigma_i$ are the singular values of $S$ viewed as a matrix. This gives an algebraic and a geometric way to interpret the error.
 
 \subsection{Questions}
-For the questions below, $k \geq 1$ is an integer and $G = (V,E)$ is a graph with $V\subset \R^m$.
-\begin{question}[Main question]
-    Find a subset of vertices $S\subset V$ that maximizes $\lambda f(S) - e_k(S)$.
-\end{question}
-
-\begin{question}[Main question 2]
-    Given an integer $n\geq 1$, find a subset of vertices $S\subset V$ of size $n$ that maximizes $\lambda f(S) - e_k(S)$.
-\end{question}
+For the questions below, $N > k \geq 1$ are integers and $G = (V,E)$ is a graph with $V\subset \R^d$. We have four related objectives.
+\begin{align}
+    F(S) &= \max_{S \subset V} \lambda \rho(S) - e_k(S)\label{eqn: n not given, not normalized}\\
+    F(S) &= \max_{S \subset V, |S| = n} \lambda \rho(S) - e_k(S)\label{eqn: n given, not normalized}\\
+    F(S) &= \max_{S \subset V} \lambda \rho(S) - e'_k(S)\label{eqn: n not given, normalized}\\
+    F(S) &= \max_{S \subset V, |S| = n} \lambda \rho(S) - e'_k(S)\label{eqn: n given, normalized}
+\end{align}
 
 \begin{question}[Forgetting about density]\label{problem: no density}
     Find subset of vertices $S\subset V$ of size $n$ that minimizes $e_k(S)$. The binary version of the problem is: ``\textit{Given $M \geq 0$ and integers $k,n\geq 1$, does there exists  $S\subset V$ of size $n$ such that $e_k(S)\leq M$?}" Is this problem \textbf{NP}-hard?
@@ -51,14 +61,16 @@ For the questions below, $k \geq 1$ is an integer and $G = (V,E)$ is a graph wit
 Case $M=0$ is not \textbf{NP}-hard for any given $k$, by algorithm \ref{alg: enumerative with M = 0}, but the runnning time is exponential in $k$. Also, if the dimension $m$ is fixed, the problem is no \textbf{NP}-hard by \ref{subsection: our problem is in P}.
 \end{proof}
 
-\begin{question}
-    Suppose the data $V$ is normalized in some way. When will the SVD of $V$ give good info about the problem?
-\end{question}
+\subsection{Relationship between constrained and unconstrained objectives}
+For objectives \ref{eqn: n not given, not normalized} and \ref{eqn: n not given, normalized} with parameter $n$ not given, it is interesting to contemplate how many nodes will be in the optimal solution. Letting $n^*$ be the number of nodes in the set with the highest density $E(S)/|S|$,
+if $n^* \leq k$, then, clearly, the number of nodes in the optimal solution to problems \ref{eqn: n not given, not normalized} and \ref{eqn: n not given, normalized} is $n^*$. Otherwise, the optimal solution contains from $k$ to $n^*$ nodes, depending on the data and on $\lambda$.
+
+\subsection{Varying $\lambda$}
+If $\lambda = 0$, the problem reduces to only dealing with the algebraic structure of the problem. If $\lambda = \infty$, the problem reduces to finding the densest subgraph. What happens when $\lambda$ is some intermediate value? And how to select $\lambda$ in practice?
 
 \section{Ideas}
-
 \subsection{Useful examples}
-Let $k = 1$, $M = 0$ and $\R^m = \R^3$. Further, let $V$ consist of two groups $V_1$ and $V_2$, where $|V_2| >> |V_1| = n$ (for example, $|V_2|=2^n$). The vectors in $V_1$ are all equal to $e_1 = (1,0,0)$. The vectors in $V_2$ are equal to $e_2=(0,1,0)$ with some small noise in the third component, such that no two vectors in $V_2$ are collinear. Thus, the first principal component of $V$ is (approximately) $e_2$, and $V_1$ is the set of outliers. But set $V_1$ is the only set that has zero-error low-rank approximation $e_k(V_1)$.
+Let $k = 1$, $M = 0$ and $\R^d = \R^3$. Further, let $V$ consist of two groups $V_1$ and $V_2$, where $|V_2| >> |V_1| = n$ (for example, $|V_2|=2^n$). The vectors in $V_1$ are all equal to $e_1 = (1,0,0)$. The vectors in $V_2$ are equal to $e_2=(0,1,0)$ with some small noise in the third component, such that no two vectors in $V_2$ are collinear. Thus, the first principal component of $V$ is (approximately) $e_2$, and $V_1$ is the set of outliers. But set $V_1$ is the only set that has zero-error low-rank approximation $e_k(V_1)$.
 
 Here is a related example. Let $P >> 1$ be large parameter and $\epsilon << 1$ a small parameter, and $|V_1| = |V_2| = n$, with $V_1$ as above, and $V_2$ consisting of two groups: $V_2^+$ and $V_2^-$. Vectors in $V_2^+$ are all equal to $P\cdot(0,1,\epsilon)$, and vectors in $V_2^-$ are all equal to $P\cdot(0,1,-\epsilon)$. The first principal component of $V = V_1\cup V_2$ is (approximately) $e_2$. But $e_1(V_2) \approx \sum_{i\leq n}P^2\epsilon^2 = n P^2\epsilon^2$. By letting $\epsilon = 1/\sqrt{P}$ and $P\to \infty$, we get arbitrarily large error $e_1(V_2)$, while $e_1(V_1) = 0$.
 
@@ -68,14 +80,11 @@ The MCD problem from \cite{bernholt2004complexity} is related to our problem in 
 We note that if $\norm{s} = 1$ for all points $s$, then the objective in our problem is to maximize the sum of principal components $\sum_{i\leq k}\sigma_i^2$.
 
 \subsection{Randomized}
-Given set $V \subset \R^m$, consider the following algorithm.
-Initialize $S = \set{v_1}$ for a random $v_1\in V$. For $i=2,...,k$: randomly sample $v_i$ from $V$, proportional to $\sum_{v\in S}\inp{v_i}{v}$, and let $S = S\cup \set{v_i}$. 
-
-\subsection{Iterative algorithm (similar to \cite{rousseeuw1999fast})}
-Initialize a bunch ($\alpha$) of subsets $S\subset V$. Each $S$ is initialized as follows: first, select $k$ vectors from $V$ u.i.r., and then find $n-k$ points in $V$ that are the closest to the span of the $k$ initial vectors. Now, for each set $S$, compute the set $E = \set{e_1,\dots, e_k}$ of the first $k$ singular vectors, and choose $n$ points from $V$ that are the closest to the span of $E$. Repeat until one of the $\alpha$ trajectories converges. Notice that eventual convergence is guaranteed because at each step the error $e_k(S)$ does not increase.
+Given set $V \subset \R^d$, consider the following algorithm.
+Initialize $S = \set{v_1}$ for a random $v_1\in V$. For $i=2,...,k$: randomly sample $v_i$ from $V$, proportional to $\sum_{v\in S}\inp{v_i}{v}$, and let $S = S\cup \set{v_i}$.
 
 \subsection{Divide and Conquer algorithm}
-Let $k$ be a power of 2 and $|V|$ be a power of 2, and suppose there exists an algorithm (may be approximate) that, given $V\subset \R^m$ will find subset $S\subset V$ of a given size that minimizes $e_1(S)$, i.e. rank-1 approximation. Then can randomly split $V$ into $V_1$ and $V_2$ of equal size, (recursively) find subsets $S_1,S_2$ of $V_1$ and $V_2$ that have low-rank approximation, and let $S = S_1\cup S_2$.
+Let $k$ be a power of 2 and $|V|$ be a power of 2, and suppose there exists an algorithm (may be approximate) that, given $V\subset \R^d$ will find subset $S\subset V$ of a given size that minimizes $e_1(S)$, i.e. rank-1 approximation. Then can randomly split $V$ into $V_1$ and $V_2$ of equal size, (recursively) find subsets $S_1,S_2$ of $V_1$ and $V_2$ that have low-rank approximation, and let $S = S_1\cup S_2$.
 
 \subsection{SVD as an optimization problem}
 SVD is a minimization problem: for $k=1$, given $n$ vectors $x_1,...,x_n\in \R^d$, find vector $e_1$ that minimizes the sum (distance from point $i$ to $e_1$)\textsuperscript{2}, which is equivalent to maximizing the sum (length of projection)\textsuperscript{2}.
@@ -84,9 +93,9 @@ If the set of vectors $x_1,...,x_n$ changes slightly (e.g. one vector is swapped
 
 \section{Resources}
 \begin{enumerate}
-    \item \href{https://www.cis.upenn.edu/~cis515/cis515-11-sl4.pdf}{overview of matrix norms} 
-    \item \href{https://arxiv.org/pdf/2002.07782.pdf}{Evimaria's paper on approximating (submodular - linear) function} 
-    \item \href{https://users.ics.aalto.fi/gionis/greedy-dense.pdf}{Greedy for dense subgraphs}  
+    \item \href{https://www.cis.upenn.edu/~cis515/cis515-11-sl4.pdf}{overview of matrix norms}
+    \item \href{https://arxiv.org/pdf/2002.07782.pdf}{Evimaria's paper on approximating (submodular - linear) function}
+    \item \href{https://users.ics.aalto.fi/gionis/greedy-dense.pdf}{Greedy for dense subgraphs}
     \item \href{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8548605}{incremental SVD (incSVD and EincSVD and AEincSVD)}
     \item \href{https://arxiv.org/pdf/1601.07010.pdf}{incremental SVD (recover SVD from SVD's of blocks)}
     \item \href{https://en.wikipedia.org/wiki/Principal_component_analysis#Iterative_computation}{Wikipedia has a surprisingly good article on PCA}
@@ -159,10 +168,10 @@ Clearly, the runtime of algorithm \ref{alg: enumerative with M > 0} is the same 
 
 To be precise, let $e_1,\dots,e_k$ be an orthonormal basis for the subset $E$ that solves out problem. Then set $S$ that solves our problem consists of $n$ points closest to $E$. Then exists quadric $Q$ that selects $S$, i.e. exist coefficients $a_i, a_{i,j}$ for $1\leq i\leq j\leq m$ s.t. $A_{i,j} = a_{i,j}$ is a symmetric matrix, and $b_i = a_i$ is a column vector, and for all points in $S$, $x^TAx + x^Tb + a_0 \leq 0$ and for all points not in $S$, $x^TAx + x^Tb + a_0 > 0$.
 
-Let's compute this quadric. Let $r>0$ be the cut-off distance, i.e. $n$ closest points lie within $r$ of $E$, and all other points lie further than $r$ from $E$. Then a quadric selecting $S$ is given by $\norm{x - \proj_{E}(x)}_2^2 - r^2 = 0$. But $\norm{x - \proj_{E}(x)}_2^2 = \norm{x}_2^2 - \norm{\proj_{E}(x)}_2^2$. Note that $\norm{x}_2^2 = \sum_{i=1}^d x_i^2$ and 
+Let's compute this quadric. Let $r>0$ be the cut-off distance, i.e. $n$ closest points lie within $r$ of $E$, and all other points lie further than $r$ from $E$. Then a quadric selecting $S$ is given by $\norm{x - \proj_{E}(x)}_2^2 - r^2 = 0$. But $\norm{x - \proj_{E}(x)}_2^2 = \norm{x}_2^2 - \norm{\proj_{E}(x)}_2^2$. Note that $\norm{x}_2^2 = \sum_{i=1}^d x_i^2$ and
 \begin{align*}
-    \norm{\proj_{E}(x)}_2^2 &= \sum_{\ell=1}^k \inp{x}{e_\ell}^2 = \sum_{\ell=1}^k \left(\sum_{i=1}^m x_i e_{\ell,i}\right)^2 = \sum_{\ell=1}^k \left( \sum_{i=1}^m x_i^2 e_{\ell,i}^2 + 2\sum_{1\leq i < j\leq m} x_ix_j e_{\ell,i}e_{\ell,j} \right)\\
-    &= \sum_{i=1}^m x_i^2 \left(\sum_{\ell=1}^k  e_{\ell,i}^2\right) + 2\sum_{1\leq i < j\leq m} x_ix_j \left(\sum_{\ell=1}^k  e_{\ell,i}e_{\ell,j} \right)
+    \norm{\proj_{E}(x)}_2^2 &= \sum_{\ell=1}^k \inp{x}{e_\ell}^2 = \sum_{\ell=1}^k \left(\sum_{i=1}^d x_i e_{\ell,i}\right)^2 = \sum_{\ell=1}^k \left( \sum_{i=1}^d x_i^2 e_{\ell,i}^2 + 2\sum_{1\leq i < j\leq m} x_ix_j e_{\ell,i}e_{\ell,j} \right)\\
+    &= \sum_{i=1}^d x_i^2 \left(\sum_{\ell=1}^k  e_{\ell,i}^2\right) + 2\sum_{1\leq i < j\leq m} x_ix_j \left(\sum_{\ell=1}^k  e_{\ell,i}e_{\ell,j} \right)
 \end{align*}
 So the coefficients for quadric $Q$ are
 \begin{align*}
@@ -170,9 +179,9 @@ So the coefficients for quadric $Q$ are
     a_{i,i} &= 1 - \left(\sum_{\ell=1}^k  e_{\ell,i}^2 \right) \text{ and } \\
     a_{i,j} &= - \left(\sum_{\ell=1}^k  e_{\ell,i}e_{\ell,j} \right)\text{ for $i\neq j$}.
 \end{align*}
-Suppose that $V$ is in \textit{general quadric position}, i.e. no hyperplane in $\R^\nu$ contains more than $\nu$ points of $\widehat{\X}$, just like they assume in \cite{bernholt2004complexity}. Then we have an analogue of lemma 2.2. in \cite{bernholt2004complexity}. 
+Suppose that $V$ is in \textit{general quadric position}, i.e. no hyperplane in $\R^\nu$ contains more than $\nu$ points of $\widehat{\X}$, just like they assume in \cite{bernholt2004complexity}. Then we have an analogue of lemma 2.2. in \cite{bernholt2004complexity}.
 \begin{lemma}
-Given $V\subset \R^m$ in general quadric position, and a quadric selecting $S\subset V$. Then there exists set $T \subset V$, $|T| = \nu := m(m+3)/2$ such that for the quadric $Q(T)$ the following holds. Let $A,b,a_0$ define $Q(T)$. Then
+Given $V\subset \R^d$ in general quadric position, and a quadric selecting $S\subset V$. Then there exists set $T \subset V$, $|T| = \nu := m(m+3)/2$ such that for the quadric $Q(T)$ the following holds. Let $A,b,a_0$ define $Q(T)$. Then
 \begin{align*}
     & x^TAx + x^Tb + a_0 \leq 0,\ x\in S,\\
     & x^TAx + x^Tb + a_0 \geq 0,\ x\in V\setminus S,\\
@@ -180,6 +189,21 @@ Given $V\subset \R^m$ in general quadric position, and a quadric selecting $S\su
 \end{align*}
 \end{lemma}
 The proof is the same as for lemma 2.2 in \cite{bernholt2004complexity}. Since a set $S$ that solves our problem is selectable by a quadric, the lemma applies, and the algorithm proposed in \cite{bernholt2004complexity} finds $S$ in time $O(N^{\nu+1})$ (the only modification is that instead of selecting a set that gives the smallest covariance determinant, we select a set that has the smallest error of rank-$k$ approximation).
+
+\subsection{Iterative algorithms}
+\subsubsection{Inspired by the Fast MCD algorithm in \cite{rousseeuw1999fast}}\label{alg: fast MCD-like}
+Initialize a bunch ($\alpha$) of subsets $S\subset V$. Each $S$ is initialized as follows: first, select $k$ vectors from $V$ u.i.r., and then find $n-k$ points in $V$ that are the closest to the span of the $k$ initial vectors. Now, for each set $S$, compute the set $E = \set{e_1,\dots, e_k}$ of the first $k$ singular vectors, and choose $n$ points from $V$ that are the closest to the span of $E$. Repeat until one of the $\alpha$ trajectories converges. Notice that eventual convergence is guaranteed because at each step the error $e_k(S)$ does not increase.
+
+\subsubsection{A variant of \ref{alg: fast MCD-like}}
+Since the MCD-like algorithm in \ref{alg: fast MCD-like} does not take the structure of the graph into account, we need to modify it in order to use it for our problem. At each step we have the set of nodes $S$, and need to pick a new set of nodes $S'$, for which the objective function $F(S') \leq F(S)$ to guarantee convergence.
+
+For a node $v$, let $F(v) = \lambda \deg_S(v) - e_k(v)$, where $\deg_S(v)$ is the degree of $v$ in the subgraph induced by $S$, and $e_k(v) = \sum_{i\geq k+1}\inp{v}{u_i}^2$, where $\set{u_i}$ is the set of left principal vectors of $S$, is the error $v$ contributes to $e(S)$. Here are some ideas for picking $S'$ based on $F(v)$:
+
+We can let $S'$ be $S$ with one node swapped out. The node to swap out is the one with the largest $F(v)$, and the new node to include is the one with the smallest $F(v)$.
+
+We can let $S'$ consist of the $n$ points with the lowest $F(v)$. The problem with this approach is that it is not guaranteed that $F(S') \leq F(S)$, although it is likely if the number of triangles in the graph is large.
+
+We can also let $F(v) = \lambda d(v) - e_k(v)$, where $d(v) = \sum_{s\in S}\inp{v}{s}$. This brings more linear algebra into the light but it is not clear how relevant this objective is at all.
 
 
 \end{document}
