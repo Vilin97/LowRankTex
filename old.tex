@@ -102,6 +102,12 @@ The answer to the second question is ``no"! For the case when A is not mean-cent
     What happens to the low-rank approximation of a matrix when I replace one vector by another?
 \end{question}
 
+\subsection{Useful examples}
+Let $k = 1$, $M = 0$ and $\R^d = \R^3$. Further, let $V$ consist of two groups $V_1$ and $V_2$, where $|V_2| >> |V_1| = n$ (for example, $|V_2|=2^n$). The vectors in $V_1$ are all equal to $e_1 = (1,0,0)$. The vectors in $V_2$ are equal to $e_2=(0,1,0)$ with some small noise in the third component, such that no two vectors in $V_2$ are collinear. Thus, the first principal component of $V$ is (approximately) $e_2$, and $V_1$ is the set of outliers. But set $V_1$ is the only set that has zero-error low-rank approximation $e_k(V_1)$.
+
+Here is a related example. Let $P >> 1$ be large parameter and $\epsilon << 1$ a small parameter, and $|V_1| = |V_2| = n$, with $V_1$ as above, and $V_2$ consisting of two groups: $V_2^+$ and $V_2^-$. Vectors in $V_2^+$ are all equal to $P\cdot(0,1,\epsilon)$, and vectors in $V_2^-$ are all equal to $P\cdot(0,1,-\epsilon)$. The first principal component of $V = V_1\cup V_2$ is (approximately) $e_2$. But $e_1(V_2) \approx \sum_{i\leq n}P^2\epsilon^2 = n P^2\epsilon^2$. By letting $\epsilon = 1/\sqrt{P}$ and $P\to \infty$, we get arbitrarily large error $e_1(V_2)$, while $e_1(V_1) = 0$.
+
+
 \section{Research Summary}
 Evimaria Terzi and I, Vasily Ilin, are interested in detecting dense low-rank subgraphs.
 The setup is as follows: we are given a graph G = (V,E), where V is a subset of m-dimensional Eucludean space $\R^m$. Given a subset S of V, one can ask for the "effective rank" of the matrix A spanned by S (matrix rows are given by S). The notion of effective rank is formalized by requiring A to be close to its best k-rank approximation $A_k$ in the Frobenius norm. If the effective rank k is small (less than size of S), vectors in S are almost spanned by k vectors. The problem we are interested in is developing algorithms to detect a dense (in average degree) subgraph S of G that has small effective rank.

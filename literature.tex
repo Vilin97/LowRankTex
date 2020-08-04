@@ -12,14 +12,14 @@
 $$\norm{A - \tilde{A}_k}^2 \leq \frac{1}{1-\epsilon}\norm{A - A_k}^2 + \epsilon^t \norm{A}^2$$
 with at least $3/4$ probability via iterative sampling, where $\tilde{A}_k$ is the sampled matrix. The first round of sampling samples row $i$ of $A$ with probability proportional to lengths squared. The second round of sampling samples row $i$ with probability proportional to the square of length of the residue of row $i$, after its projection onto the span of sampled rows. There are $t$ such rounds of sampling, with $k/\epsilon$ rows sampled each round. Thus, there are $tk/\epsilon$ rows in $\tilde{A}_k$. The algorithm \textbf{does not} compute the actual SVD of $A$, as opposed to the algorithm from \cite{drineas2007relativeerror}. Intuitively, if an important direction is not accounted for in round $i$, it will have a higher chance of being sampled in round $i+1$.
 
-They also show existence of $4k^2/\epsilon$ rows that span matrix $\tilde{A}_k$ such that 
+They also show existence of $4k^2/\epsilon$ rows that span matrix $\tilde{A}_k$ such that
 $$\norm{A - \tilde{A}_k}^2 \leq (1+\epsilon)\norm{A - A_k}^2 = (1+\epsilon)\opt.$$
 
 Even though the claim itself is weaker than that in \cite{drineas2007relativeerror} (mere existence vs an algorithm finding it w.h.p.), the technique used is different from \cite{drineas2007relativeerror}, and can be of independent interest, In particular, this provides a certain guarantee of algorithm \ref{direct alg, M > 0}.
 
 \section{Drineas, 2007}
-\cite{drineas2007relativeerror} does matrix decomposition using rows of the matrix as principal vectors. They first \textbf{compute the SVD}, and then sample rows, s.t. row $i$ is sampled with probability proportional to the square of length of its projection onto the subspace spanned by principal vectors. They have two algorithms: one that samples $O(k\log k \log(1/\delta)/\epsilon^2)$ rows in expectation, and another that samples exactly $O(k^2\log(1/\delta)/\epsilon^2)$ rows 
-They obtain multiplicative bound 
+\cite{drineas2007relativeerror} does matrix decomposition using rows of the matrix as principal vectors. They first \textbf{compute the SVD}, and then sample rows, s.t. row $i$ is sampled with probability proportional to the square of length of its projection onto the subspace spanned by principal vectors. They have two algorithms: one that samples $O(k\log k \log(1/\delta)/\epsilon^2)$ rows in expectation, and another that samples exactly $O(k^2\log(1/\delta)/\epsilon^2)$ rows
+They obtain multiplicative bound
 $$\norm{A - \tilde{A}_k}^2 \leq (1+\epsilon)\norm{A - A_k}^2 = (1+\epsilon)\opt$$ with probability at least $1-\delta$.
 
 \section{Bernholt, 2004}
@@ -40,7 +40,7 @@ Equivalently, it is the set $\set{z\in \R^d : z^T A z + z^T b + a_0 = 0}$, where
 
 An important fact they note in this paper is that selection by a quadric in $d$ dimensions is equivalent to selection by a hyperplane in $\nu$ dimensions. Indeed, consider the map $\mathbf{\widehat{}}: \R^d \to \R^\nu$ given by
 $$\widehat{z} = (z_1,\dots,z_d, z_1z_1,\dots,z_iz_j,\dots,z_dz_d),\ 1\leq i\leq j\leq d.$$
-Then the parameters $a_i,a_{i,j}$ define a hyperplane in $\R^\nu$ with the property that 
+Then the parameters $a_i,a_{i,j}$ define a hyperplane in $\R^\nu$ with the property that
 $$ \text{$z$ selected by quadric $Q \iff \widehat{z} $ is selected by the hyperplane$ \iff \inp{\widehat{z}}{\widehat{a}} + a_0\leq 0$}, $$
 where $\widehat{a} = (a_1,\dots,a_d, a_{1,1},\dots,a_{i,j},\dots,a_{d,d})$
 
@@ -59,7 +59,7 @@ So it is enough to check all subsets of $\X$ of size $\nu$ to uncover the quadri
 \end{theorem}
 
 \section{Rousseeuw, 1999}
-\cite{rousseeuw1999fast} shows that any subset that minimizes the covariance determinant is selectable by an ellipsoid (corollary 1). 
+\cite{rousseeuw1999fast} shows that any subset that minimizes the covariance determinant is selectable by an ellipsoid (corollary 1).
 
 They also introduce a C-step, which, given a set, will find a new set with smaller or equal covariance determinant. It is done by selecting the $h$ elemens with the smallest Mahalanobis distance.
 
@@ -68,12 +68,12 @@ Additionally, they present a fast algorithm for approximating MCD, which is iter
 Their algorithm is to initialize a lot of subsets $\X'$ of the original set $\X$, and apply C-steps to each one until convergence. To initialize, for each subset $\X'$ they select $k$ values u.i.r., compute the covariance matrix, and add $n-k$ values from $\X$ that have the lowest Mahalanobis distance.
 
 \section{chawla, 2013}
-\cite{chawla2013k} introduce k-means--, which works with outliers. They claim that for $k=1, \ell>1$, k-means-- is a special case of MCD. This is true because the set $\X' = \X \setminus \text{\{outliers\}}$ is selectable by an ellipsoid (a sphere, in fact). 
+\cite{chawla2013k} introduce k-means--, which works with outliers. They claim that for $k=1, \ell>1$, k-means-- is a special case of MCD. This is true because the set $\X' = \X \setminus \text{\{outliers\}}$ is selectable by an ellipsoid (a sphere, in fact).
 
 \section{Hubert and Rousseeuw, 2005}
 \cite{hubert2005robpca} consider a problem quite similar to ours: given a set $\X \subset \R^d$ and integers $k$ and $0.5 |\X| \leq h$, find a subset of $\X$ of size $h$ that has the best PCA approximation. Unfortunately, they never actually state the problem precisely, so it is unclear how they measure the goodness of PCA approximation of a set. Their algorithm is quite convoluted, but is quite different from all algorithms we have thought of for our problem. A big difference between their problem and ours is that their require $0.5 |\X| \leq h$, and think of all elements that are discarded as outliers. We, on the other hand, might choose $h$ to be small, and think of the chosen points as a community, without labeling all other points as outliers.
 
-In their algorithm they use a measure of ''outlyingness`` for each point to select those are are not outliers. It is given by 
+In their algorithm they use a measure of ''outlyingness`` for each point to select those are are not outliers. It is given by
 $$\text{outl}_A(x_i) = \max_{v\in B} \frac{|x_i^T v - \text{med}(x_j^T v)|}{\text{mad}(x_j^T v)},$$
 where $B$ contains all non-zero vectors, $\text{med}(x_j^T v)$ is the median of $\set{x_j^T v : x_j \in \X}$, and $\text{mad}(x_j^T v) = \text{med}|x_j^T v - \text{med}(x_{\ell}^T v)|.$
 
@@ -96,5 +96,19 @@ This is the main theorem:
 
 
 \printbibliography
+
+\section{Resources}
+\begin{enumerate}
+    \item \href{https://www.cis.upenn.edu/~cis515/cis515-11-sl4.pdf}{overview of matrix norms}
+    \item \href{https://arxiv.org/pdf/2002.07782.pdf}{Evimaria's paper on approximating (submodular - linear) function}
+    \item \href{https://users.ics.aalto.fi/gionis/greedy-dense.pdf}{Greedy for dense subgraphs}
+    \item \href{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8548605}{incremental SVD (incSVD and EincSVD and AEincSVD)}
+    \item \href{https://arxiv.org/pdf/1601.07010.pdf}{incremental SVD (recover SVD from SVD's of blocks)}
+    \item \href{https://en.wikipedia.org/wiki/Principal_component_analysis#Iterative_computation}{Wikipedia has a surprisingly good article on PCA}
+    \item \href{https://www.semanticscholar.org/paper/The-intractability-of-computing-the-minimum-of-a-Vardy/2e0b89803e126a41e872f1d68eeb3e8eb71698c5}{hardness results}
+    \item \href{https://www.cs.cmu.edu/~venkatg/teaching/CStheory-infoage/book-chapter-4.pdf}{amazing SVD overview with geometric intuition}
+    \item \href{https://www.cs.purdue.edu/homes/pdrineas/documents/publications/Drineas_SIMAX_08b.pdf}{Petros Drineas' paper on CUR relative error.} Section 4 concerns the approximation error guarantees. Their algorithm is probabilistic but perhaps we can use the mere existence of a good CUR decomposition to our advantage.
+    \item \href{https://www.theoryofcomputing.org/articles/v002a012/v002a012.pdf}{Existence of rows with good approximation guarantee.} Theorem 1.4 gives the existence.
+\end{enumerate}
 
 \end{document}
