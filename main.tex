@@ -45,7 +45,7 @@ $$\norm{A - A_k}^2 = \norm{\sum_{i}\sigma_i u_i v_i^T - \sum_{i\leq k}\sigma_i u
 Thus, $$e_k(S) = \sum_{i>k}\sigma_i^2 = \text{ sum of squared lengths of projections onto the first $k$ singular vectors},$$ where $\sigma_i$ are the singular values of $S$ viewed as a matrix. This gives an algebraic and a geometric way to interpret the error.
 
 \subsection{Questions}
-For the questions below, $N > k \geq 1$ are integers and $G = (V,E)$ is a graph with $V\subset \R^d$. We have four related objectives.
+For the questions below, $n > k \geq 1$ are integers and $G = (V,E)$ is a graph with $V\subset \R^d$. We have four related objectives.
 \begin{align}
     F(S) &= \max_{S \subset V} \lambda \rho(S) - e_k(S)\label{eqn: n not given, not normalized}\\
     F(S) &= \max_{S \subset V, |S| = n} \lambda \rho(S) - e_k(S)\label{eqn: n given, not normalized}\\
@@ -53,12 +53,15 @@ For the questions below, $N > k \geq 1$ are integers and $G = (V,E)$ is a graph 
     F(S) &= \max_{S \subset V, |S| = n} \lambda \rho(S) - e'_k(S)\label{eqn: n given, normalized}
 \end{align}
 
+Note that the unnormalized objective \ref{eqn: L2 objective, not normalized} is biased towards choosing vectors of low norm. Thus, objective \ref{eqn: L2 objective, normalized} might be preferred.
+ Additionally, note that if there exists an algorithm for \ref{eqn: n given, normalized}, then by repeating it $N$ times, problem \ref{eqn: n not given, normalized} can be solved. Thus, we focus on problem \ref{eqn: n given, normalized}.
+
 \begin{question}[Forgetting about density]\label{problem: no density}
     Find subset of vertices $S\subset V$ of size $n$ that minimizes $e_k(S)$. The binary version of the problem is: ``\textit{Given $M \geq 0$ and integers $k,n\geq 1$, does there exists  $S\subset V$ of size $n$ such that $e_k(S)\leq M$?}" Is this problem \textbf{NP}-hard?
 \end{question}
 
 \begin{proof}[Answer]
-Case $M=0$ is not \textbf{NP}-hard for any given $k$, by algorithm \ref{alg: enumerative with M = 0}, but the runnning time is exponential in $k$. Also, if the dimension $m$ is fixed, the problem is no \textbf{NP}-hard by \ref{subsection: our problem is in P}.
+Case $M=0$ is not \textbf{NP}-hard for any given $k$, by algorithm \ref{alg: enumerative with M = 0}, but the runnning time is exponential in $k$. Also, if the dimension $m$ is fixed, the problem is not \textbf{NP}-hard by \ref{subsection: our problem is in P}.
 \end{proof}
 
 \subsection{Relationship between constrained and unconstrained objectives}
@@ -174,7 +177,7 @@ For a node $v$, let $F(v) = \lambda \deg_S(v) - e_k(v)$, where $\deg_S(v)$ is th
 \end{enumerate}
 
 \subsubsection{Seeding FastLowRank}
-The success of FastLowRank depends on a lucky initialization. If a set is initialized close to an optimal set, convergence will be quick, and an optimal set will be recovered. The user shuld be able to give a ``hint'' to FastLowRank by providing one or more partial or complete initializations. 
+The success of FastLowRank depends on a lucky initialization. If a set is initialized close to an optimal set, convergence will be quick, and an optimal set will be recovered. The user shuld be able to give a ``hint'' to FastLowRank by providing one or more partial or complete initializations.
 
 
 
