@@ -42,7 +42,7 @@ The relationship between the Frobenius norm and the singular values is
 $$\norm{A}^2 = \sum_{i,j}a_{i,j}^2 = \sum \sigma_i^2.$$
 Given $A_k = \sum_{i\leq k}\sigma_i u_i v_i^T$, the best $k$-rank approximation of $A$ in both the 2-norm and the Frobenius norm,
 $$\norm{A - A_k}^2 = \norm{\sum_{i}\sigma_i u_i v_i^T - \sum_{i\leq k}\sigma_i u_i v_i^T}^2 = \norm{\sum_{i > k}\sigma_i u_i v_i^T}^2 = \sum_{i>k}\sigma_i^2.$$
-Thus, $$e_k(S) = \sum_{i>k}\sigma_i^2 = \text{ sum of squared lengths of projections onto the first $k$ singular vectors},$$ where $\sigma_i$ are the singular values of $S$ viewed as a matrix. This gives an algebraic and a geometric way to interpret the error.
+Thus, $$e_k(S) = \sum_{i>k}\sigma_i^2 = \text{ sum of squared lengths of residues from projecing onto the first $k$ singular vectors},$$ where $\sigma_i$ are the singular values of $S$ viewed as a matrix. This gives an algebraic and a geometric way to interpret the error.
 
 \subsection{Questions}
 For the questions below, $n > k \geq 1$ are integers and $G = (V,E)$ is a graph with $V\subset \R^d$. We have four related objectives.
@@ -161,11 +161,24 @@ Given $V\subset \R^d$ in general quadric position, and a quadric selecting $S\su
 The proof is the same as for lemma 2.2 in \cite{bernholt2004complexity}. Since a set $S$ that solves our problem is selectable by a quadric, the lemma applies, and the algorithm proposed in \cite{bernholt2004complexity} finds $S$ in time $O(N^{\nu+1})$ (the only modification is that instead of selecting a set that gives the smallest covariance determinant, we select a set that has the smallest error of rank-$k$ approximation).
 
 \subsection{FastLowRank (Iterative algorithms)}
-\subsubsection{Inspired by the Fast MCD algorithm in \cite{rousseeuw1999fast}}\label{alg: fast MCD-like}
+\subsubsection{Not normalized}\label{alg: FastLowRank, not normalized}
+The following algorithm aims to minimize the non-normalized objective \ref{eqn: L2 objective, not normalized}, i.e. minimize $e_k(S) = \sum_{i\geq k+1}\sigma_i^2$.
+
 Initialize a bunch ($\alpha$) of subsets $S\subset V$. Each $S$ is initialized as follows: first, select $k$ vectors from $V$ u.i.r., and then find $n-k$ points in $V$ that are the closest to the span of the $k$ initial vectors. Now, for each set $S$, compute the set $E = \set{e_1,\dots, e_k}$ of the first $k$ singular vectors, and choose $n$ points from $V$ that are the closest to the span of $E$. Repeat until one of the $\alpha$ trajectories converges. Notice that eventual convergence is guaranteed because at each step the error $e_k(S)$ does not increase.
 
+\subsubsection{Normalized}\label{alg: FastLowRank, normalized}
+In order to minimize objective \ref{eqn: L2 objective, normalized}, i.e. minimize $e'_k(S) = \frac{\sum_{i\geq k+1}\sigma_i^2}{\sum_{i\geq 1}\sigma_i^2}$, we need to modify the way we select $S'$. Here is the optimal algorihm for picking $S'$ given $S$.
+
+For each point $x_i$ let $e(x_i) = \sum_{i\geq k+1}\inp{x_i}{u_i}^2$ is the length squared of the residue of $X_i$ ($\set{u_i}$ is the set of left singular vectors of $S$). We aim to find points $S'$, s.t.
+ $$\frac{\sum_{i\geq k+1}\sigma_i^2}{\sum_{i\geq 1}\sigma_i^2} = \frac{\sum_{x \in S'}e(x)}{\sum_{x\in S'}\norm{x}^2}$$
+ is minimized. Then it suffices to solve the problem of choosing $n$ elements $S'$ out of a subset $\X$ of $\R^2$, lying in the first ocatant, of size $N$, s.t. $$\frac{\sum_{(x,y) \in S'}y}{\sum_{(x,y)\in S'}x} = \text{ slope of }\sum_{(x,y) \in S'}(x,y)$$ is minimized. To do this, note that the point $(x^*,y^*) \in \X$ with the smallest slope must be in $S'$, since the slope of
+  $\sum_{(x,y) \in S'}(x,y)$ is a weighted sum of slopes $\set{\frac{y}{x}}_{(x,y)\in S'}$, since $\frac{\sum_{(x,y) \in S'}y}{\sum_{(x,y)\in S'}y} = \frac{\sum_{(x,y) \in S'}x\cdot \frac{y}{x}}{\sum_{(x,y)\in S'}x}$.
+  Now, let $\X_1 = \X + (x^*,y^*)/(n-1) = \set{(x,y) + (x^*,y^*)/(n-1): (x,y)\in \X}$, and choose $n-1$ points from $\X_1$ that minimize the slope. This is correct, because the sum of any $n-1$ elements of $\X_1$ is equal to the sum of the corresponding $n-1$ elements of $\X$ plus $(x^*, y^*)$.
+
+  This update step $S \mapsto S'$ is $\Theta(N\cdot n)$, which is $n$ times slower than the equivalent step in the non-normalized version of FastLowRank. With this update step the error does not increase, i.e. $e'_k(S') \leq e'_k(S)$, meaning convergence is guaranteed.
+
 \subsubsection{FastLowRank for graphs}
-Since the MCD-like algorithm in \ref{alg: fast MCD-like} does not take the structure of the graph into account, we need to modify it in order to use it for our problem. At each step we have the set of nodes $S$, and need to pick a new set of nodes $S'$, for which the objective function $F(S') \leq F(S)$ to guarantee convergence.
+Since the algorithms above do not take the structure of the graph into account, we need to modify it in order to use it for our problem. At each step we have the set of nodes $S$, and need to pick a new set of nodes $S'$, for which the objective function $F(S') \leq F(S)$ to guarantee convergence.
 
 For a node $v$, let $F(v) = \lambda \deg_S(v) - e_k(v)$, where $\deg_S(v)$ is the degree of $v$ in the subgraph induced by $S$, and $e_k(v) = \sum_{i\geq k+1}\inp{v}{u_i}^2$, where $\set{u_i}$ is the set of left principal vectors of $S$, is the error $v$ contributes to $e(S)$. Here are some ideas for picking $S'$ based on $F(v)$:
 
