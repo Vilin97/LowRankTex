@@ -75,6 +75,15 @@ If $\lambda = 0$, the problem reduces to only dealing with the algebraic structu
 \subsection{Connection with MCD}
 The MCD problem from \cite{bernholt2004complexity} is related to our problem in the following algebraic way. For a given set $S$ and the matrix it spans (call it $S$ too), its SVD is given by $S = U \Sigma V^T$, where $SS^T = U \Sigma^2 U^T$ is the covariance matrix. Thus, the objective function in MCD is $$\det{S} = \det{SS^T} = \det{U \Sigma^2 U^T} = \det{\Sigma^2} = \prod_{i}\sigma_i^2 = \text{ product of singular values squared}.$$ The objective function to be minimized in our problem is $$e_k(S) = \sum_{i \geq k+1}\sigma_i^2.$$
 
+\section{Performance Evaluation}
+\begin{figure}[H]\label{img: FastLowRank performance}
+    \includegraphics[width = 0.8\textwidth]{images/GlobalFastLowRank.png}
+    \caption{GlobalFastLowRank performance}
+    \includegraphics[width = 0.8\textwidth]{images/LocalFastLowRank.png}
+    \caption{LocalFastLowRank performance}
+\end{figure}
+
+
 \printbibliography
 
 \section{Appendix}
