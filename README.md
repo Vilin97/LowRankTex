@@ -2,6 +2,6 @@ Low-rank Subset is the following problem. Given a set of N vectors in finite-dim
 
 Dense low-rank subgraph is the following problem. Given a graph of N nodes, such that each node is associated with a vector in finite-dimensional Euclidean space and integer k and n, choose n nodes, such that they are well approximated by k vectors AND the subgraph induced by them is dense.
 
-This repo is an exploration of this problem. main.tex is the write-up with the precise problem statement, a brief refresher on Singular Value Decomposition, and a few possible algorithms for this problem. The write-up is a rough draft, and goes hand in hand with the LowRank repo at https://github.com/Vilin97/LowRank.jl, which contains implementations of the algorithms described in the write-up.
+This repo is an exploration of this problem. main.tex is the write-up with the precise problem statement, a brief refresher on Singular Value Decomposition, and a few possible algorithms for this problem. The write-up is a rough draft, and goes hand in hand with the LowRank repo at https://github.com/Vilin97/LowRank.jl, which contains implementations of the algorithms described in the write-up. Go to `report` to read the full (incomplete) write-up.
 
 This research was done in Summer, 2020 with Evimaria Terzi, a professor of Computer Science at BU. She supported me with a grant.
